@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Exact Coset Sampling for Quantum Lattice Algorithms</title>
+
+    <meta name="description" content="A drop-in, provably correct replacement for a contested step in a windowed-QFT lattice algorithm: a pair-shift difference cancels offsets exactly, synthesizes a uniform cyclic CRT-coset of order P, and enforces the target modular relation via QFT.">
+    <meta name="keywords" content="Quantum Computing, Lattice Problems, Quantum Algorithms, QFT, CRT, Chinese Remainder Theorem, Cryptography, Post-Quantum, Coset Sampling, Character Orthogonality">
+    <meta name="citation_title" content="Exact Coset Sampling for Quantum Lattice Algorithms">
+    <meta name="citation_author" content="Yifan Zhang">
+    <meta name="citation_publication_date" content="2025/09/15">
+    <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2509.12341.pdf"> <meta property="og:title" content="Exact Coset Sampling for Quantum Lattice Algorithms"/>
+    <meta property="og:description" content="A drop-in, provably correct replacement: pair-shift difference cancels offsets, creates a uniform cyclic CRT-coset of size P, and QFT enforces the intended modular relation."/>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yifanzhang-pro.github.io/quantum-lattice/" />
+    <link rel="canonical" href="https://yifanzhang-pro.github.io/quantum-lattice/">
+    <link rel="icon" href="https://placehold.co/32x32/004080/FFFFFF?text=QL" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                macros: {
+                    bm: ["\\mathbf{#1}", 1] // Define \bm as \mathbf
+                }
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #004080; /* Professional Navy Blue */
+            --accent-color: #CFB87C;  
+            --main-bg: #FFFFFF;
+            --content-bg: #F8F9FA;
+            --text-main: #363636;
+            --text-on-primary: #FFFFFF;
+            --link-color: var(--primary-color);
+            --link-hover-color: #0059b3;
+            --primary-color-rgb: 0, 64, 128; /* fallback for early paint */
+            --link-color-rgb: 0, 64, 128;     /* fallback for early paint */
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--main-bg);
+            color: var(--text-main);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Sticky Navbar */
+        .navbar {
+            background-color: rgba(var(--primary-color-rgb), 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar-brand a.navbar-item, .navbar-menu a.navbar-item {
+            color: var(--text-on-primary);
+            font-weight: 500;
+        }
+        .navbar-brand a.navbar-item:hover, .navbar-menu a.navbar-item:hover, .navbar-item.is-active {
+            background-color: transparent !important;
+            color: var(--accent-color) !important;
+        }
+        .navbar-burger { color: var(--text-on-primary); }
+
+        /* Hero Section */
+        .hero {
+            background: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+        .hero .title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: var(--text-on-primary);
+            font-size: 3.2rem;
+        }
+        .hero .subtitle.is-hero-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 1.5rem auto 2.5rem auto;
+        }
+        .hero .subtitle .highlight {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .project-links a {
+            color: var(--text-on-primary);
+            font-size: 1.5rem;
+            margin: 0 0.75rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .project-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        /* Content Sections */
+        .section.content-section {
+            padding: 5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .section.content-section:nth-child(even) { background-color: var(--content-bg); }
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+        .content {
+            max-width: 960px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        .content a {
+            color: var(--link-color);
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom: 2px solid rgba(var(--link-color-rgb), 0.2);
+        }
+        .content a:hover {
+            color: var(--link-hover-color);
+            border-bottom-color: var(--link-hover-color);
+        }
+        .content img {
+            display: block;
+            margin: 2rem auto;
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .content pre {
+            background-color: #282c34;
+            color: #abb2bf;
+            border-radius: 6px;
+            padding: 1.25em;
+            white-space: pre-wrap;
+        }
+        code {
+            background-color: #f0f0f0;
+            color: #3a3a3a;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-size: 85%;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-color);
+            color: var(--text-on-primary);
+            padding: 2rem 1.5rem;
+            border-top: 4px solid var(--accent-color);
+            margin-top: auto;
+        }
+        .footer .content p { color: var(--text-on-primary); }
+        .footer a {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+        .footer a:hover { color: var(--text-on-primary); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item is-size-5 has-text-weight-bold" href="#">Quantum Lattice Algorithms</a>
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div id="navbarMenu" class="navbar-menu">
+                <div class="navbar-end">
+                    <a href="#about" class="navbar-item">About</a>
+                    <a href="#method" class="navbar-item">Method</a>
+                    <a href="#algorithm" class="navbar-item">Algorithm</a>
+                    <a href="#citation" class="navbar-item">Citation</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero is-medium">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title">Exact Coset Sampling for<br>Quantum Lattice Algorithms</h1>
+                <h2 class="subtitle is-hero-subtitle">
+                    A drop-in, provably correct replacement that <span class="highlight">cancels offsets exactly</span>, synthesizes a <span class="highlight">uniform cyclic CRT‑coset</span>, and enforces the intended modular relation via QFT.
+                </h2>
+                <h3 class="subtitle is-5" style="color: rgba(255, 255, 255, 0.9); margin-top: 2rem; margin-bottom: 2rem;">
+                    <a href="https://yifzhang.com" style="color: var(--accent-color); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(207, 184, 124, 0.6);">Yifan Zhang</a>
+                </h3>
+                <h4 class="subtitle is-5" style="color: rgba(255, 255, 255, 0.8);">Princeton University</h4>
+                <div class="project-links">
+                    <a href="QuantumLattice.pdf" target="_blank" rel="noopener noreferrer" aria-label="Paper"><i class="fas fa-file-pdf"></i></a>
+                    <a href="https://arxiv.org/abs/2509.12341" target="_blank" rel="noopener noreferrer" aria-label="arXiv Paper"><i class="fas fa-graduation-cap"></i></a>
+                    <a href="https://github.com/yifanzhang-pro/quantum-lattice" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#citation" aria-label="Citation"><i class="fas fa-quote-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="about" class="section content-section">
+            <div class="container">
+                <h2 class="title is-3 has-text-centered section-title">Abstract</h2>
+                <div class="content has-text-justified" style="max-width: 800px; margin: 0 auto;">
+                    <p>
+                        We give a drop‑in, provably correct replacement for the contested “domain‑extension” in Step&nbsp;9 of a windowed‑QFT lattice algorithm with complex‑Gaussian windows. The published Step&nbsp;9 suffers from a periodicity/support mismatch. We present a <strong>pair‑shift difference</strong> that cancels all unknown offsets exactly, synthesizes an <em>exact</em> uniform cyclic CRT‑coset of size $P$ inside $(\mathbb{Z}_{M_2})^n$, and then uses the QFT to enforce the intended modular linear relation. The unitary is reversible, uses $\mathrm{poly}(\log M_2)$ gates, and preserves upstream asymptotics. A mild <em>residue‑accessibility</em> condition is needed only for coherent cleanup; no amplitude periodicity is used.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="method" class="section content-section">
+            <div class="container">
+                <h2 class="title is-3 has-text-centered section-title">The Pair-Shift Difference Method</h2>
+                <div class="content">
+                    <h3 class="subtitle is-4 has-text-centered">The Problem: An Erroneous Step</h3>
+                    <p>
+                        Recent work by <a href="https://eprint.iacr.org/2024/555" target="_blank" rel="noopener">Chen et&nbsp;al. (2024)</a> introduced a powerful quantum algorithm for lattice problems. However, a critical subroutine, <strong>Step&nbsp;9</strong>, which is responsible for enforcing a modular linear constraint, contained an error. The original step attempts a “domain extension” that misuses amplitude periodicity, leading to a quantum state with support of the incorrect size and hence an incorrect Fourier sampling distribution. The goal is to produce a random vector $\mathbf{u}$ that satisfies:
+                        $$ \langle \mathbf{b}^*, \mathbf{u} \rangle \equiv 0 \pmod{P} $$
+                    </p>
+                    <h3 class="subtitle is-4 has-text-centered" style="margin-top: 3rem;">Our Solution: Step $9^\dagger$</h3>
+                    <p>
+                        Our replacement is a self‑contained unitary. The core idea is to synthesize a uniform cyclic coset by coherently shifting along the $\mathbf b^*$ direction and taking a difference that cancels offsets. We emphasize a <em>J‑free default</em> realization that avoids re‑evaluating the state‑preparation on superpositions and uses only classical reversible arithmetic.
+                    </p>
+                    <img src="quantum-lattice-algo.png" alt="Diagram showing the 5 stages of the pair-shift difference method." width="400">
+                    <p class="has-text-centered is-size-7">
+                        <strong>Figure:</strong> Corrected Step $9^\dagger$. The procedure factors the state and yields an <strong>exactly uniform superposition</strong> over a CRT‑coset; a QFT then enforces the modular relation. (A re‑evaluation variant with an auxiliary copy is also supported.)
+                    </p>
+
+                    <h4 class="title is-5" style="margin-top: 3rem;">Key Advantages</h4>
+                        <ul>
+                            <li><strong>Correctness:</strong> Provably enforces the intended modular hyperplane via character orthogonality.</li>
+                            <li><strong>Exact Offset Cancellation:</strong> The unknown offsets $\mathbf{v}^*$ are removed identically by the pair‑shift difference; no knowledge of $\mathbf{v}^*$ is required.</li>
+                            <li><strong>No Reliance on Amplitude Periodicity:</strong> Our subroutine does not use any arguments based on amplitude periodicity or phase flattening, which were the source of the original error.</li>
+                            <li><strong>Efficiency:</strong> Uses only $\mathrm{poly}(\log M_2)$ gates and is fully reversible; asymptotics are preserved.</li>
+                            <li><strong>Simplicity:</strong> Built from standard primitives (QFT, modular arithmetic, CNOT) with phase‑free classical reversible arithmetic.</li>
+                            <li><strong>Mild Assumption:</strong> A residue‑accessibility condition is needed <em>only</em> for coherent cleanup (to erase the coset label); all other steps are unconditional.</li>
+                        </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section id="algorithm" class="section content-section">
+            <div class="container">
+                <h2 class="title is-3 has-text-centered section-title">Algorithm & Correctness</h2>
+                <div class="content">
+                    <p>
+                        The corrected Step $9^{\dagger}$ is a drop‑in replacement for the original subroutine. We recommend the <em>J‑free default</em> path summarized below.
+                    </p>
+<pre><code>Algorithm: Step 9_dagger — Pair-shift difference (J-free) and QFT
+
+Input: Affine-register block X (mod M₂); cached Δ := X(1) − X(0) from basis harvest.
+
+1. Prepare T ← uniform over Z_P (e.g., per-prime QFTs + CRT wiring).
+2. Compute Z ← − T · Δ  (mod M₂) via reversible double-and-add (Δ read-only).
+3. Cleanup (required for interference):
+   a. For each p_η | P, choose i(η) with Δ_{i(η)} ≠ 0 (mod p_η);
+      set T'_η ← − Δ_{i(η)}^{-1} · Z_{i(η)} (mod p_η); CRT-recombine T'.
+   b. Set T ← T − T' (so T = 0) and uncompute T' by inverting its construction.
+4. Apply QFT_{Z_{M₂}}^{⊗ n} to Z and measure u.
+
+Output: u satisfies ⟨b*, u⟩ ≡ 0 (mod P), uniformly over the solution set.</code></pre>
+                    <p class="is-size-7" style="margin-top: -0.5rem;">
+                        <em>Note.</em> A re‑evaluation variant (with auxiliary copy $Y$ and label $J\equiv j\ (\bmod P)$) is also supported; it yields the same $Z$ and final distribution.
+                    </p>
+                    <p style="margin-top: 2rem;">
+                        The correctness of the algorithm stems from creating a uniform superposition over a CRT-coset. After applying the QFT, the amplitude $A(\mathbf{u})$ for measuring a state $\mathbf{u}$ becomes a geometric sum that evaluates to zero unless the desired condition is met:
+                    </p>
+                    <p class="has-text-centered">
+                        $A(\mathbf{u}) = \frac{1}{\sqrt{M_2^n P}} \sum_{T=0}^{P-1} \left( \exp\left( \frac{2\pi i}{P} \cdot (-2)\,\langle \mathbf{b}^*, \mathbf{u}\rangle \right) \right)^T$
+                    </p>
+                    <p>
+                        Since $P$ is odd, this sum is non‑zero if and only if $\langle \mathbf{b}^*, \mathbf{u} \rangle \equiv 0 \pmod{P}$. The measurement outcomes are therefore uniformly distributed over the solution space, exactly as required.
+                    </p>
+                    <p class="is-size-7">
+                        <em>Residue accessibility.</em> This condition is used only in cleanup to coherently erase $T$ from $(\mathbf Z \bmod P)$; without cleanup, QFT on $\mathbf Z$ alone is uniform over $(\mathbb Z_{M_2})^n$ and does not enforce the constraint.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="citation" class="section content-section">
+            <div class="container">
+                <h2 class="title is-3 has-text-centered section-title">Citation</h2>
+                <div class="content">
+                    <p>If you find this work useful in your research, please cite our paper:</p>
+<pre><code>@article{zhang2025exact,
+  title={Exact Coset Sampling for Quantum Lattice Algorithms},
+  author={Yifan Zhang},
+  journal={arXiv preprint arXiv:2509.12341},
+  year={2025}
+}</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <p>
+                    <a href="#about">About</a> &nbsp;&bull;&nbsp;
+                    <a href="#method">Method</a> &nbsp;&bull;&nbsp;
+                    <a href="#algorithm">Algorithm</a> &nbsp;&bull;&nbsp;
+                    <a href="#citation">Citation</a>
+                </p>
+                <p>
+                    &copy; 2025 Yifan Zhang. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for the mobile navbar toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach( el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            }
+
+            // Function to convert hex to rgb for rgba() usage
+            function hexToRgb(hex) {
+                let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            // Set RGB versions of colors for use in rgba()
+            const root = document.documentElement;
+            const styles = getComputedStyle(root);
+            const primaryColor = styles.getPropertyValue('--primary-color').trim();
+            const linkColor = styles.getPropertyValue('--link-color').trim();
+
+            const primaryRgb = hexToRgb(primaryColor);
+            if (primaryRgb) {
+                root.style.setProperty('--primary-color-rgb', `${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}`);
+            }
+
+            const linkRgb = hexToRgb(linkColor);
+            if (linkRgb) {
+                root.style.setProperty('--link-color-rgb', `${linkRgb.r}, ${linkRgb.g}, ${linkRgb.b}`);
+            }
+        });
+    </script>
+
+</body>
+</html>
