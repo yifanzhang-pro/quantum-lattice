@@ -8,6 +8,11 @@
 This repository accompanies the paper **“Exact Coset Sampling for Quantum Lattice Algorithms”**.  
 It presents a **drop-in, provably correct** replacement for the contested **Step 9** in a recent windowed-QFT lattice algorithm with complex-Gaussian windows ([ePrint 2024/555](https://eprint.iacr.org/2024/555)). Our subroutine, **Step $9^{\dagger}$**, uses a *pair-shift difference* to cancel offsets exactly, synthesize a uniform cyclic CRT-coset of size $P$, and recover the intended modular linear relation by plain character orthogonality after a QFT.
 
+### Updates
+
+- [10/21/2025] Uploaded `A Note on Apon (2025)’s Comment on
+Quantum Lattice Algorithms`: [Note_on_Daniel_Apon.pdf](https://yifanzhang-pro.github.io/quantum-lattice/Note_on_Daniel_Apon.pdf).
+
 ## Abstract
 
 We replace the “domain-extension” in Step 9 of a windowed-QFT lattice algorithm with a **pair-shift difference** that (i) **coherently cancels unknown offsets**, (ii) **produces an exactly uniform** subgroup-coset of size $P$ inside $(\mathbb Z_{M_2})^n$ (with $M_2=D^2P$, $P$ odd, $\gcd(D,P)=1$), and (iii) uses the QFT to enforce $\langle \mathbf b^*, \mathbf u\rangle\equiv 0\pmod P$ **exactly** by character orthogonality.  
