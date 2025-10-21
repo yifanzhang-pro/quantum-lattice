@@ -10,6 +10,7 @@ It presents a **drop-in, provably correct** replacement for the contested **Step
 
 ### Updates
 
+- [10/21/2025] [WIP] Identified additional bugs within Chen (2024), which need to be fixed such that Zhang (2025) can be integrated with it. 
 - [10/21/2025] Uploaded `A Note on Apon (2025)’s Comment on
 Quantum Lattice Algorithms`: [Note_on_Daniel_Apon.pdf](https://yifanzhang-pro.github.io/quantum-lattice/Note_on_Daniel_Apon.pdf).
 
