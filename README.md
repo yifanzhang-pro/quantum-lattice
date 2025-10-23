@@ -10,7 +10,7 @@ It presents a **drop-in, provably correct** replacement for the contested **Step
 
 ### Updates
 
-- [10/22/2025] Updated the `docs/QuantumLattice.pdf` with more details: [docs/QuantumLattice.pdf](https://yifanzhang-pro.github.io/quantum-lattice/QuantumLattice.pdf).
+- [10/22/2025] Updated the `docs/QuantumLattice.pdf` with more details, and all assumptions are explicitly listed: [docs/QuantumLattice.pdf](https://yifanzhang-pro.github.io/quantum-lattice/QuantumLattice.pdf).
 - [10/21/2025] Updated the `docs/Note_on_Daniel_Apon.pdf` with more details. 
 - [10/21/2025] Uploaded `A Note on Apon (2025)’s Comment on
 Quantum Lattice Algorithms`: [docs/Note_on_Daniel_Apon.pdf](https://yifanzhang-pro.github.io/quantum-lattice/Note_on_Daniel_Apon.pdf).
